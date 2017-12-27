@@ -1,0 +1,12 @@
+{%  extends '::base.html.twig' %}
+
+{%  block body %}
+<h2>Panel zarządzania mailami</h2>
+
+<ul>
+    <li><a href="{{ path('email_create') }}">Utwórz email</a></li>
+    <li><a href="">Pokaż wszystkie maile</a></li>
+    <li><a href="">Wyślij wszystkie niewysłane maile</a></li>
+</ul>
+
+{%  endblock %}

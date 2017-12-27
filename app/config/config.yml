@@ -1,0 +1,116 @@
+imports:
+    - { resource: parameters.yml }
+    - { resource: security.yml }
+    - { resource: services.yml }
+
+# Put parameters here that don't need to change on each machine where the app is deployed
+# http://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
+parameters:
+    locale: en
+    api_url_prefix: ^/api/
+
+framework:
+    #esi: ~
+    #translator: { fallbacks: ['%locale%'] }
+    secret: '%secret%'
+    router:
+        resource: '%kernel.project_dir%/app/config/routes.yml'
+        strict_requirements: ~
+    form: ~
+    csrf_protection: ~
+    validation: { enable_annotations: true }
+    #serializer: { enable_annotations: true }
+    templating:
+        engines: ['twig']
+    default_locale: '%locale%'
+    trusted_hosts: ~
+    session:
+        # http://symfony.com/doc/current/reference/configuration/framework.html#handler-id
+        handler_id: session.handler.native_file
+        save_path: '%kernel.project_dir%/var/sessions/%kernel.environment%'
+    fragments: ~
+    http_method_override: true
+    assets: ~
+    php_errors:
+        log: true
+
+# Twig Configuration
+twig:
+    debug: '%kernel.debug%'
+    strict_variables: '%kernel.debug%'
+
+# Doctrine Configuration
+doctrine:
+    dbal:
+        driver: pdo_mysql
+        host: '%database_host%'
+        port: '%database_port%'
+        dbname: '%database_name%'
+        user: '%database_user%'
+        password: '%database_password%'
+        charset: UTF8
+        # if using pdo_sqlite as your database driver:
+        #   1. add the path in parameters.yml
+        #     e.g. database_path: "%kernel.project_dir%/var/data/data.sqlite"
+        #   2. Uncomment database_path in parameters.yml.dist
+        #   3. Uncomment next line:
+        #path: '%database_path%'
+
+    orm:
+        auto_generate_proxy_classes: '%kernel.debug%'
+        naming_strategy: doctrine.orm.naming_strategy.underscore
+        auto_mapping: true
+
+# Swiftmailer Configuration
+swiftmailer:
+    transport: '%mailer_transport%'
+    host: '%mailer_host%'
+    username: '%mailer_user%'
+    password: '%mailer_password%'
+    spool: { type: memory }
+
+nelmio_api_doc:
+    sandbox:
+        body_format:
+            formats:
+                - json
+        request_format:
+            method: accept_header
+            formats:
+                json: application/json
+
+fos_rest:
+    #only under /api URL all FOS Rest Bundle's listeners are attached
+    zone:
+        - { path: %api_url_prefix% }
+    view:
+        #acceptable API formats, for now only JSON
+        formats:
+            json: true
+        #listener handles conversion of result data from controller to view (response)
+        view_response_listener: true
+    routing_loader:
+        #http://symfony.com/doc/master/bundles/FOSRestBundle/5-automatic-route-generation_single-restful-controller.html#optional-format-in-route
+        #without of adding output format in routes (in queries)
+        include_format: false
+        #domyślny format wyjścia (który zwracamy userowi)
+
+        #default output format (returns to users)
+        default_format: json
+    #param converter from body request
+    body_converter:
+        enabled: true
+    body_listener:
+        #domyślny input format, content-type
+        default_format: json
+        #handleable input formats
+        decoders:
+            json: fos_rest.decoder.json
+        #not handleable input formats - throw exception
+        throw_exception_on_unsupported_content_type: true
+    param_fetcher_listener:
+        enabled: true
+    serializer:
+        serialize_null: true
+    exception:
+        enabled: true

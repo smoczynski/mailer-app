@@ -1,0 +1,5 @@
+main_api:
+    type: rest
+    prefix: /
+    resource: "@ApiBundle/Controller/"
+    name_prefix:  api_ # naming collision

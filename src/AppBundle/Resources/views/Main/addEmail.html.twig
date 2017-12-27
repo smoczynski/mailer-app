@@ -1,0 +1,94 @@
+{%  extends '::base.html.twig' %}
+
+{%  block body %}
+
+    <div class="row">
+        <div class="col-sm-6 col-sm-offset-3">
+            <h2>Definiowanie maila</h2>
+
+            <form>
+                <div class="form-group">
+                    <label>Nadawca</label>
+                    <input type="text" class="form-control" name="sender">
+                </div>
+                <div class="form-group">
+                    <label>Odbiorcy</label>
+                    <input type="text" class="form-control" name="sender">
+                </div>
+                <div class="form-group">
+                    <label>Tytuł</label>
+                    <input type="text" class="form-control" name="sender">
+                </div>
+                <div class="form-group">
+                    <label>Treść</label>
+                    <textarea class="form-control ignore" name="content" id="content"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Priorytet</label>
+                    <select name="priority" class="form-control">
+                        <option value="1">Niski</option>
+                        <option value="2">Średni</option>
+                        <option value="3">Wysoki</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Załącznik</label>
+                    <input type="text" class="form-control" name="attachment">
+                </div>
+
+                <div class="form-group">
+
+                    <button type="button" class="btn btn-default" id="submit-email-add">Utwórz email</button>
+                </div>
+
+
+            </form>
+
+
+        </div>
+    </div>
+
+{%  endblock %}
+
+{% block javascripts %}
+
+    <link href="http://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.8/summernote.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.8/summernote.min.js"></script>
+
+    <script>
+
+        var $summernote = $('#content').summernote({
+            height:200,
+            airMode: false,
+            toolbar: [
+                // [groupName, [list of button]]
+                ['style', ['bold', 'italic', 'underline', 'clear']],
+                ['misc', ['undo','redo']],
+                ['font', ['strikethrough']],
+                ['fontsize', ['fontsize','color']],
+                ['para', ['ul', 'ol', 'paragraph']],
+                ['height', ['height']],
+                ['insert', ['link']],
+                ['misc', ['fullscreen']]
+            ]
+        });
+
+
+        $(document).on('click','#submit-email-add', function() {
+
+            var $this = $(this);
+
+            var data = $('form').serialize();
+
+            console.log(data);
+
+
+            return false;
+        });
+
+
+
+    </script>
+{% endblock %}
