@@ -1,12 +1,38 @@
 {%  extends '::base.html.twig' %}
 
 {%  block body %}
-<h2>Panel zarządzania mailami</h2>
+    <h2>Email management</h2>
+    
+    <ul>
+        <li><a href="{{ path('email_create') }}">Create email</a></li>
+        <li><a href="{{ path('api_get_mails') }}">Email list</a></li>
+        <li><a href="" id="send-emails">Send all pending emails</a></li>
+    </ul>
+        
+    <div id="message-place"></div>
 
-<ul>
-    <li><a href="{{ path('email_create') }}">Utwórz email</a></li>
-    <li><a href="">Pokaż wszystkie maile</a></li>
-    <li><a href="">Wyślij wszystkie niewysłane maile</a></li>
-</ul>
+{%  endblock %}
 
+{%  block javascripts %}
+    <script type="text/javascript">
+        $('#send-emails').on('click', sendAllEmailsAction);
+        
+        function sendAllEmailsAction() {
+
+            var url = "{{ path('api_post_mails_send') }}";
+
+            $.ajax({
+                url: url,
+                method: 'POST',
+                success: function(data) {
+                    $('#message-place').html('<p class="alert alert-success">' + data.message + '</p>');
+                },
+                error: function(data) {
+
+                }
+            });
+
+            return false;
+        }
+    </script>  
 {%  endblock %}

@@ -4,43 +4,54 @@
 
     <div class="row">
         <div class="col-sm-6 col-sm-offset-3">
-            <h2>Definiowanie maila</h2>
+            <h2>Defining an email</h2>
 
             <form>
                 <div class="form-group">
-                    <label>Nadawca</label>
-                    <input type="text" class="form-control" name="sender">
+                    <label>Sender:</label>
+                    <input type="text" class="form-control" name="sender" placeholder="email address">
                 </div>
                 <div class="form-group">
-                    <label>Odbiorcy</label>
-                    <input type="text" class="form-control" name="sender">
+                    <label>Recipients</label>
+
+                    <div id="recipients-place"></div>
+                    <button id="add-recipient" type="button" class="btn btn-success">Add recipient</button>
                 </div>
                 <div class="form-group">
-                    <label>Tytuł</label>
-                    <input type="text" class="form-control" name="sender">
+                    <label>Title:</label>
+                    <input type="text" class="form-control" name="title" placeholder="email title">
                 </div>
                 <div class="form-group">
-                    <label>Treść</label>
+                    <label>Content</label>
                     <textarea class="form-control ignore" name="content" id="content"></textarea>
                 </div>
 
                 <div class="form-group">
-                    <label>Priorytet</label>
+                    <label>Priority</label>
                     <select name="priority" class="form-control">
-                        <option value="1">Niski</option>
-                        <option value="2">Średni</option>
-                        <option value="3">Wysoki</option>
+                        <option value="1">Low</option>
+                        <option value="2">Medium</option>
+                        <option value="3">High</option>
                     </select>
                 </div>
 
                 <div class="form-group">
-                    <label>Załącznik</label>
+                    <label>Status</label>
+                    <select name="status" class="form-control">
+                        <option value="pending">Pending</option>
+                        <option value="sent">Sent</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Attachment</label>
                     <input type="text" class="form-control" name="attachment">
                 </div>
 
                 <div class="form-group">
+                    <div id="message-place"></div>
 
-                    <button type="button" class="btn btn-default" id="submit-email-add">Utwórz email</button>
+                    <button type="button" class="btn btn-default" id="submit-email-add">Create email</button>
                 </div>
 
 
@@ -59,7 +70,7 @@
 
     <script>
 
-        var $summernote = $('#content').summernote({
+        $('#content').summernote({
             height:200,
             airMode: false,
             toolbar: [
@@ -67,28 +78,84 @@
                 ['style', ['bold', 'italic', 'underline', 'clear']],
                 ['misc', ['undo','redo']],
                 ['font', ['strikethrough']],
-                ['fontsize', ['fontsize','color']],
-                ['para', ['ul', 'ol', 'paragraph']],
-                ['height', ['height']],
-                ['insert', ['link']],
+                ['para', ['ul', 'ol']],
                 ['misc', ['fullscreen']]
             ]
         });
 
+        $('#add-recipient').on('click', addRecipientBox);
 
-        $(document).on('click','#submit-email-add', function() {
+        $(document).on('click','#submit-email-add', createEmail);
 
-            var $this = $(this);
+        $(document).on('click', '.remove-recipient', removeRecipientBox);
 
-            var data = $('form').serialize();
-
-            console.log(data);
-
+        function addRecipientBox() {
+            var temp = $('#recipient-temp').html();
+            $('#recipients-place').append(temp);
 
             return false;
-        });
+        }
 
+        function removeRecipientBox() {
+            var $this = $(this);
+            $this.closest('.recipient-box').html('');
+        }
 
+        function createEmail() {
+            var $this = $(this);
+            var form = $this.closest('form');
+            var url = '{{ path('api_post_mail') }}';
+            var recipients = [];
+            var attachments = [];
+            var recipientBoxes = $('[name="recipients[]"]');
+            var attachmentBoxes = $('[name="attachments[]"]');
 
+            for (var i = 0; i < recipientBoxes.length; i++) {
+                recipients.push($(recipientBoxes[i]).val());
+            }
+
+            for (var i = 0; i < attachmentBoxes.length; i++) {
+                attachments.push($(attachmentBoxes[i]).val());
+            }
+
+            var data = {
+                title: form.find('[name="title"]').val(),
+                sender: form.find('[name="sender"]').val(),
+                content: form.find('[name="content"]').val(),
+                priority: form.find('[name="priority"] option:selected').val(),
+                status: form.find('[name="status"] option:selected').val(),
+                attachments: attachments,
+                recipients: recipients
+            };
+
+            $.ajax({
+                url: url,
+                method: 'POST',
+                data: JSON.stringify(data),
+                dataType: 'json',
+                contentType: "application/json; charset=utf-8",
+                success: function(data) {
+                    $('#message-place').html('<p class="alert alert-success">Email created</p>');
+                },
+                error: function(data) {
+                    var message = data.responseJSON.error.exception[0].message;
+                    $('#message-place').html('<p class="alert alert-danger">' + message + '</p>');
+                }
+            });
+
+            return false;
+        }
+
+    </script>
+
+    <script type="text/html" id="recipient-temp">
+        <div class="recipient-box row form-group">
+            <div class="col-sm-11">
+                <input type="text" class="form-control" name="recipients[]" placeholder="email address">
+            </div>
+            <div class="col-sm-1">
+                <button class="btn btn-danger remove-recipient">X</button>
+            </div>
+        </div>
     </script>
 {% endblock %}

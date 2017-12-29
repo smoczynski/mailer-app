@@ -2,6 +2,7 @@
 
 namespace AppBundle\Controller;
 
+use Exception;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -17,29 +18,6 @@ class MainController extends Controller
      */
     public function indexAction()
     {
-     //   $process = new Process('../bin/console test');
-     //   $process->run();
-
-//        if (!$process->isSuccessful()) {
-//            throw new ProcessFailedException($process);
-//        }
-
-//        $process->clearOutput();
-//
-//        echo $process->getOutput();
-
-    //    $process->start();
-
-//        foreach ($process as $type => $data) {
-//            if ($process::OUT === $type) {
-//                echo "\nRead from stdout: ".$data;
-//            } else { // $process::ERR === $type
-//                echo "\nRead from stderr: ".$data;
-//            }
-//        }
-
-
-
         return;
     }
 
