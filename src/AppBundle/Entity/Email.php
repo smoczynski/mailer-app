@@ -1,85 +1,151 @@
 <?php
 
 namespace AppBundle\Entity;
+use ApiBundle\Base\Model\ResourceInterface;
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
+use JMS\Serializer\Annotation as Serializer;
 use Symfony\Component\Validator\Constraints as Assert;
+use ApiBundle\Base\RestController;
+use AppBundle\Constraints as CustomAssert;
 
 /**
- * Class Mail
- * @ORM\Entity(repositoryClass="MailRepository")
+ * Class Email
+ * @ORM\Entity(repositoryClass="EmailRepository")
  */
-class Mail
+class Email implements ResourceInterface
 {
+    const STATUS_PENDING = 'pending';
+    const STATUS_SENT = 'sent';
+    const STATUS_BROKEN = 'broken';
+
     /**
+     * Identifier
+     *
      * @var int
      * @ORM\Id()
      * @ORM\Column(type="integer")
      * @ORM\GeneratedValue(strategy="AUTO")
+     * @Serializer\Type("integer")
+     * @Serializer\ReadOnly()
+     * @Serializer\Groups({RestController::GROUP_OUTPUT, RestController::GROUP_PRIMARY_KEY})
      */
     private $id;
 
     /**
+     * Title
+     *
      * @var string
      * @ORM\Column(type="string", length=255)
      * @Assert\NotBlank()
+     * @Assert\Type("string")
+     * @Serializer\Type("string")
+     * @Serializer\Groups({RestController::GROUP_INPUT, RestController::GROUP_OUTPUT})
      */
     private $title;
 
     /**
+     * Sender
+     *
      * @var string
      * @ORM\Column(type="string", length=100)
      * @Assert\Length(max=100)
+     * @Assert\Type("string")
+     * @Assert\Email()
      * @Assert\NotBlank()
+     * @Serializer\Type("string")
+     * @Serializer\Groups({RestController::GROUP_INPUT, RestController::GROUP_OUTPUT})
      */
     private $sender;
 
     /**
+     * Recivers
+     *
      * @var array
-     * @ORM\Column(type="array")
+     * @ORM\Column(type="array", nullable=true)
+     * @Assert\Type("array")
+     * @CustomAssert\ArrayOfEmails()
      * @Assert\NotBlank()
+     * @Serializer\Type("array")
+     * @Serializer\Groups({RestController::GROUP_INPUT, RestController::GROUP_OUTPUT})
      */
-    private $recivers;
+    private $recipients;
 
     /**
+     * Content
+     *
      * @var string
      * @ORM\Column(type="text")
+     * @Assert\Type("string")
      * @Assert\NotBlank()
+     * @Serializer\Type("string")
+     * @Serializer\Groups({RestController::GROUP_INPUT, RestController::GROUP_OUTPUT})
      */
     private $content;
 
     /**
+     * Created at
+     *
      * @var DateTime
      * @ORM\Column(type="datetime")
      * @Gedmo\Timestampable(on="create")
+     * @Serializer\Type("DateTime<'Y-m-d H:i:s'>")
+     * @Serializer\ReadOnly()
+     * @Serializer\Groups({RestController::GROUP_OUTPUT})
      */
     private $createdAt;
 
     /**
+     * Sent at
+     *
      * @var DateTime
-     * @ORM\Column(type="datetime")
+     * @ORM\Column(type="datetime", nullable=true)
+     * @Serializer\Type("DateTime<'Y-m-d H:i:s'>")
+     * @Serializer\ReadOnly()
+     * @Serializer\Groups({RestController::GROUP_OUTPUT})
      */
     private $sentAt;
 
     /**
+     * Status
+     *
      * @var string
      * @ORM\Column(type="string", length=10)
      * @Assert\Length(max=10)
+     * @Assert\Type("string")
+     * @Assert\Choice(choices = {
+     *     Email::STATUS_PENDING,
+     *     Email::STATUS_SENT,
+     *     Email::STATUS_BROKEN,
+     * })
      * @Assert\NotBlank()
+     * @Serializer\Type("string")
+     * @Serializer\Groups({RestController::GROUP_INPUT, RestController::GROUP_OUTPUT})
      */
     private $status;
 
     /**
+     * Priority
+     *
      * @var int
      * @ORM\Column(type="integer")
+     * @Assert\Type(type="integer")
+     * @Assert\Range(min=1, max=3)
      * @Assert\NotBlank()
+     * @Serializer\Type("integer")
+     * @Serializer\Groups({RestController::GROUP_INPUT, RestController::GROUP_OUTPUT})
      */
     private $priority;
 
     /**
+     * Attachements
+     *
      * @var array
-     * @ORM\Column(type="array")
+     * @ORM\Column(type="array", nullable=true)
+     * @Assert\Type("array")
+     * @Serializer\Type("array")
+     * @Serializer\Groups({RestController::GROUP_INPUT, RestController::GROUP_OUTPUT})
      */
     private $attachements;
 
@@ -134,17 +200,17 @@ class Mail
     /**
      * @return array
      */
-    public function getRecivers()
+    public function getRecipients()
     {
-        return $this->recivers;
+        return $this->recipients;
     }
 
     /**
-     * @param array $recivers
+     * @param array $recipients
      */
-    public function setRecivers($recivers)
+    public function setRecipients($recipients)
     {
-        $this->recivers = $recivers;
+        $this->recipients = $recipients;
     }
 
     /**

@@ -2,6 +2,7 @@ imports:
     - { resource: parameters.yml }
     - { resource: security.yml }
     - { resource: services.yml }
+   # - { resource: "@ApiBundle/Resources/config/services.yml" }
 
 # Put parameters here that don't need to change on each machine where the app is deployed
 # http://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
@@ -14,7 +15,7 @@ framework:
     #translator: { fallbacks: ['%locale%'] }
     secret: '%secret%'
     router:
-        resource: '%kernel.project_dir%/app/config/routes.yml'
+        resource: '%kernel.project_dir%/app/config/routing.yml'
         strict_requirements: ~
     form: ~
     csrf_protection: ~
@@ -67,6 +68,7 @@ swiftmailer:
     host: '%mailer_host%'
     username: '%mailer_user%'
     password: '%mailer_password%'
+    port: '%mailer_port%'
     spool: { type: memory }
 
 nelmio_api_doc:
@@ -114,3 +116,12 @@ fos_rest:
         serialize_null: true
     exception:
         enabled: true
+        messages:
+            Symfony\Component\HttpKernel\Exception\HttpException: true
+
+stof_doctrine_extensions:
+    default_locale: pl_PL
+    orm:
+        default:
+            tree: true
+            timestampable: true # not needed: listeners are not enabled by default

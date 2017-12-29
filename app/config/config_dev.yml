@@ -37,5 +37,10 @@ monolog:
         #    type: chromephp
         #    level: info
 
+fos_rest:
+    exception:
+        enabled: false
+
 #swiftmailer:
 #    delivery_addresses: ['me@example.com']
+
