@@ -7,11 +7,10 @@ use ApiBundle\Base\Model\ResourceInterface;
 use ApiBundle\Base\RestController;
 use AppBundle\Entity\Email;
 use Doctrine\ORM\NonUniqueResultException;
-use Doctrine\ORM\NoResultException;;
+use Doctrine\ORM\NoResultException;
 use FOS\RestBundle\Request\ParamFetcher;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
-use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Process\Process;
@@ -120,11 +119,15 @@ class MailController extends RestController
      * @Rest\Post("mails/send")
      * @Rest\View(statusCode=200)
      *
-     * @Rest\QueryParam(name="limit", requirements="\d+", default="NULL",
+     * @Rest\QueryParam(name="limit", requirements="\d+", default=0,
      *     description="Sending limit per action, default there is no limit."
      * )
      * @Rest\QueryParam(name="provider", default=DefaultMailer::PROVIDER,
      *     description="Mailer provider."
+     * )
+     *
+     * @Rest\QueryParam(name="env", default="prod",
+     *     description="CLI environment."
      * )
      *
      * @ApiDoc(
@@ -134,22 +137,27 @@ class MailController extends RestController
      *     }
      * )
      *
-     * @param Request $request
+     * @param ParamFetcher $paramFetcher
      * @return Response
      */
-    public function postMailsSendAction(Request $request)
+    public function postMailsSendAction(ParamFetcher $paramFetcher)
     {
         $rootDir = $this->get('kernel')->getRootDir();
         $options = '';
-        $provider = $request->query->get('provider');
-        $limit = $request->query->get('limit');
+        $provider = $paramFetcher->get('provider');
+        $limit = $paramFetcher->get('limit');
+        $environment = $paramFetcher->get('env');
 
         if ($provider) {
             $options .= ' --provider=' . $provider;
         }
 
-        if ($limit) {
+        if ($limit || $limit === 0) {
             $options .= ' --limit=' . $limit;
+        }
+
+        if ($environment) {
+            $options .= ' --env=' . $environment;
         }
 
         $process = new Process($rootDir . '/../bin/console mailer:send' . $options);

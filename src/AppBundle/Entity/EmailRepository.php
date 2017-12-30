@@ -12,8 +12,10 @@ use Doctrine\ORM\EntityRepository;
  */
 class EmailRepository extends EntityRepository
 {
-    public function findAllPendingEmails(?int $limit)
+    public function findAllPendingEmails(int $limit)
     {
+        $limit = ($limit === 0) ? null : $limit;
+
         return $this->getEntityManager()
             ->createQueryBuilder()
             ->select('m')

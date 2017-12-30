@@ -34,7 +34,7 @@ class MailerController
      * @throws Exception
      * @throws NotFoundExceptionInterface
      */
-    public function handleSendingEmails(string $provider = 'default', ?int $limit = null): array
+    public function handleSendingEmails(string $provider = 'default', int $limit = 0): array
     {
         /** @var MailerInterface $mailer */
         $mailer = $this->getMatchingMailer($provider);

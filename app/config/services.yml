@@ -22,3 +22,7 @@ services:
         arguments:
             - '@mailer.locator'
 
+    AppBundle\Mailer\DefaultMailer:
+        arguments:
+            - '%kernel.project_dir%'
+

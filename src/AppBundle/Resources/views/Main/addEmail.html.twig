@@ -4,12 +4,20 @@
 
     <div class="row">
         <div class="col-sm-6 col-sm-offset-3">
-            <h2>Defining an email</h2>
+            <div class="row">
+                <div class="col-sm-6">
+                    <h2>Defining an email</h2>
+                </div>
+                <div class="col-sm-6 right">
+                    <a href="{{ path('homepage') }}" class="btn btn-default nav-btn">Go back</a>
+                </div>
+            </div>
 
+            <div id ="form-place">
             <form>
                 <div class="form-group">
                     <label>Sender:</label>
-                    <input type="text" class="form-control" name="sender" placeholder="email address">
+                    <input type="text" class="form-control" name="sender" placeholder="email address" required>
                 </div>
                 <div class="form-group">
                     <label>Recipients</label>
@@ -19,10 +27,10 @@
                 </div>
                 <div class="form-group">
                     <label>Title:</label>
-                    <input type="text" class="form-control" name="title" placeholder="email title">
+                    <input type="text" class="form-control" name="title" placeholder="email title" required>
                 </div>
                 <div class="form-group">
-                    <label>Content</label>
+                    <label for="content">Content</label>
                     <textarea class="form-control ignore" name="content" id="content"></textarea>
                 </div>
 
@@ -44,8 +52,14 @@
                 </div>
 
                 <div class="form-group">
+                    <label for="file" class="btn btn-success">Add attachment
+                    </label>
+                    <input type="file" name="file" id="file" style="display: none;">
+                </div>
+
+                <div class="form-group">
                     <label>Attachment</label>
-                    <input type="text" class="form-control" name="attachment">
+                    <div id="attachments-place"></div>
                 </div>
 
                 <div class="form-group">
@@ -53,9 +67,8 @@
 
                     <button type="button" class="btn btn-default" id="submit-email-add">Create email</button>
                 </div>
-
-
             </form>
+            </div>
 
 
         </div>
@@ -67,14 +80,16 @@
 
     <link href="http://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.8/summernote.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.8/summernote.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
 
     <script>
+        var $messagePlace = $('#message-place');
+        var attachments = [];
 
         $('#content').summernote({
             height:200,
             airMode: false,
             toolbar: [
-                // [groupName, [list of button]]
                 ['style', ['bold', 'italic', 'underline', 'clear']],
                 ['misc', ['undo','redo']],
                 ['font', ['strikethrough']],
@@ -83,11 +98,12 @@
             ]
         });
 
-        $('#add-recipient').on('click', addRecipientBox);
-
         $(document).on('click','#submit-email-add', createEmail);
-
         $(document).on('click', '.remove-recipient', removeRecipientBox);
+        $(document).on('click', '.remove-attachment', removeAttachmentFromThelist);
+
+        $('[name="file"]').on('change', handleAttachmentUpload);
+        $('#add-recipient').on('click', addRecipientBox);
 
         function addRecipientBox() {
             var temp = $('#recipient-temp').html();
@@ -98,7 +114,7 @@
 
         function removeRecipientBox() {
             var $this = $(this);
-            $this.closest('.recipient-box').html('');
+            $this.closest('.recipient-box').remove();
         }
 
         function createEmail() {
@@ -106,16 +122,10 @@
             var form = $this.closest('form');
             var url = '{{ path('api_post_mail') }}';
             var recipients = [];
-            var attachments = [];
             var recipientBoxes = $('[name="recipients[]"]');
-            var attachmentBoxes = $('[name="attachments[]"]');
 
             for (var i = 0; i < recipientBoxes.length; i++) {
                 recipients.push($(recipientBoxes[i]).val());
-            }
-
-            for (var i = 0; i < attachmentBoxes.length; i++) {
-                attachments.push($(attachmentBoxes[i]).val());
             }
 
             var data = {
@@ -130,20 +140,161 @@
 
             $.ajax({
                 url: url,
-                method: 'POST',
+                type: 'POST',
                 data: JSON.stringify(data),
                 dataType: 'json',
                 contentType: "application/json; charset=utf-8",
                 success: function(data) {
-                    $('#message-place').html('<p class="alert alert-success">Email created</p>');
+                    $('#form-place').html(createSuccessMessage('Email created with id ' + data.id));
+                    saveAcceptedAttachments();
                 },
                 error: function(data) {
-                    var message = data.responseJSON.error.exception[0].message;
-                    $('#message-place').html('<p class="alert alert-danger">' + message + '</p>');
+                    $messagePlace.html(createErrorMessage(getApiErrorMessage(data)));
                 }
             });
 
             return false;
+        }
+
+        function handleAttachmentUpload() {
+            var $fileInput = $('#file');
+            var attachmentsPlace = $('#attachments-place');
+            var formData = new FormData();
+            var file = $fileInput[0].files[0];
+
+            $messagePlace.html('');
+
+            if (false === checkIsAttachmentFileValid(file)) {
+                return false;
+            }
+
+            var attachmentId = file.size + '-' + file.name;
+
+            if (false === checkIsAttachmentUnique(attachmentId)) {
+                return false;
+            }
+
+            var temp = _.template($('#attachment-temp').html());
+
+            attachmentsPlace.append(temp({attachmentId:attachmentId, filename: file.name}));
+
+            formData.append('file', file, file.name);
+
+            $.ajax({
+                url: '{{ path("api_post_attachment_cache") }}',
+                type: 'POST',
+                data: formData,
+                dataType: 'json',
+                cache: false,
+                contentType: false,
+                processData: false,
+                success: function (data) {
+                    $('.attachment-file[data-id="'+attachmentId+'"]').addClass('btn-success');
+                    $('.remove-attachment[data-id="'+attachmentId+'"]').attr('disabled', false);
+
+                    var attachment = {
+                        name: file.name,
+                        cacheName: data.fileCacheName,
+                        id: attachmentId
+                    };
+
+                    attachments.push(attachment);
+                },
+                error: function(data) {
+                    $messagePlace.html(createErrorMessage(getApiErrorMessage(data)));
+                }
+            });
+
+            $fileInput.val(null);
+
+            return false;
+        }
+
+        function removeAttachmentFromThelist() {
+            var $this= $(this);
+            var attachmentId = $this.attr('data-id');
+
+            var selectedAttachment = ($.grep(attachments, function(e) {
+                return e.id === attachmentId;
+            }))[0];
+
+            attachments = $.grep(attachments, function(e) {
+                return e.id !== attachmentId;
+            });
+
+            $.ajax({
+                url: '{{ path("api_delete_attachment_cache") }}',
+                data: {fileCacheName: selectedAttachment.cacheName},
+                type: 'DELETE',
+                success: function(data) {
+                    $('.attachment-file[data-id="'+attachmentId+'"]').closest('.attachment-box').remove();
+                    $('.remove-attachment[data-id="'+attachmentId+'"]').attr('disabled', false);
+                    $('#file').val(null);
+                },
+                error: function(data) {
+                    $messagePlace.html(createErrorMessage(getApiErrorMessage(data)));
+                }
+            });
+
+            return false;
+        }
+
+        function saveAcceptedAttachments() {
+            $.ajax({
+                url: '{{ path("api_put_attachment") }}',
+                type: 'PUT',
+                data: {attachments: attachments}
+            });
+
+            return false;
+        }
+
+        function createErrorMessage(message) {
+            return '<p class="alert alert-danger">' + message + '</p>'
+        }
+
+        function createSuccessMessage(message) {
+            return '<p class="alert alert-success">' + message + '</p>'
+        }
+
+        function getApiErrorMessage(data) {
+            if (data.responseJSON.message) {
+                return data.responseJSON.message;
+            }
+
+            if (data.responseJSON && data.responseJSON.error && data.responseJSON.error.exception) {
+                return data.responseJSON.error.exception[0].message;
+            }
+        }
+
+        function checkIsAttachmentFileValid(file) {
+            if (!file.type.match('image.*')) {
+                $messagePlace
+                    .html(createErrorMessage('This file is not an image. Sorry, it cannot be uploaded.'));
+                return false;
+            }
+
+            if (file.size >= 2000000 ) {
+                $messagePlace
+                    .html(createErrorMessage('This file is larger than 2MB. Sorry, it cannot be uploaded.'));
+                return false;
+            }
+
+            return true;
+        }
+
+        function checkIsAttachmentUnique(attachmentId) {
+            var selectedAttachment = ($.grep(attachments, function(e) {
+                return e.id === attachmentId;
+            }))[0];
+
+            if (selectedAttachment) {
+                $messagePlace
+                    .html(createErrorMessage('Cannot add the same attachment twice.'));
+                return false;
+            }
+
+            return true;
         }
 
     </script>
@@ -151,10 +302,21 @@
     <script type="text/html" id="recipient-temp">
         <div class="recipient-box row form-group">
             <div class="col-sm-11">
-                <input type="text" class="form-control" name="recipients[]" placeholder="email address">
+                <input type="text" class="form-control" name="recipients[]" placeholder="email address" required>
             </div>
             <div class="col-sm-1">
-                <button class="btn btn-danger remove-recipient">X</button>
+                <button class="btn btn-danger remove-recipient" type="button">X</button>
+            </div>
+        </div>
+    </script>
+
+    <script type="text/html" id="attachment-temp">
+        <div class="attachment-box row form-group">
+            <div class="col-sm-3">
+                <div data-id="<%=attachmentId%>" class="btn btn-default attachment-file" style="width:100%;"><%=filename%></div>
+            </div>
+            <div class="col-sm-1">
+                <button data-id="<%=attachmentId%>" type="button" class="btn btn-danger remove-attachment" disabled>Remove</button>
             </div>
         </div>
     </script>

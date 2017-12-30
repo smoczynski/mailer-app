@@ -1,15 +1,25 @@
 {%  extends '::base.html.twig' %}
 
 {%  block body %}
-    <h2>Email management</h2>
-    
-    <ul>
-        <li><a href="{{ path('email_create') }}">Create email</a></li>
-        <li><a href="{{ path('api_get_mails') }}">Email list</a></li>
-        <li><a href="" id="send-emails">Send all pending emails</a></li>
-    </ul>
-        
-    <div id="message-place"></div>
+    <div class="row">
+        <div class="col-sm-4 col-sm-offset-4">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3>Email management</h3>
+                </div>
+                <div class="panel-body">
+                    <ul>
+                        <li><a href="{{ path('email_create') }}">Create email</a></li>
+                        <li><a href="{{ path('nelmio_api_doc_index') }}">API Documentation</a></li>
+                        <li><a href="{{ path('api_get_mails') }}">API endpoint listing emails</a></li>
+                        <li><a href="" id="send-emails">API endpoint - run background process sending emails</a></li>
+                    </ul>
+
+                    <div id="message-place"></div>
+                </div>
+            </div>
+        </div>
+    </div>
 
 {%  endblock %}
 
@@ -25,7 +35,12 @@
                 url: url,
                 method: 'POST',
                 success: function(data) {
-                    $('#message-place').html('<p class="alert alert-success">' + data.message + '</p>');
+                    $('#message-place')
+                        .html('<p class="alert alert-success">' + data.message + '</p>');
+
+                    setTimeout(function() {
+                        $('#message-place').html('');
+                    },2000);
                 },
                 error: function(data) {
 

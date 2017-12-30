@@ -147,7 +147,7 @@ class Email implements ResourceInterface
      * @Serializer\Type("array")
      * @Serializer\Groups({RestController::GROUP_INPUT, RestController::GROUP_OUTPUT})
      */
-    private $attachements;
+    private $attachments;
 
     /**
      * @return int
@@ -296,17 +296,17 @@ class Email implements ResourceInterface
     /**
      * @return array
      */
-    public function getAttachements()
+    public function getAttachments()
     {
-        return $this->attachements;
+        return $this->attachments;
     }
 
     /**
-     * @param array $attachements
+     * @param array $attachments
      */
-    public function setAttachements($attachements)
+    public function setAttachments($attachments)
     {
-        $this->attachements = $attachements;
+        $this->attachments = $attachments;
     }
 
 
