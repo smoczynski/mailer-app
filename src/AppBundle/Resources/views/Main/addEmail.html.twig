@@ -268,15 +268,9 @@
         }
 
         function checkIsAttachmentFileValid(file) {
-            if (!file.type.match('image.*')) {
+            if (file.size >= 10000000 ) {
                 $messagePlace
-                    .html(createErrorMessage('This file is not an image. Sorry, it cannot be uploaded.'));
-                return false;
-            }
-
-            if (file.size >= 2000000 ) {
-                $messagePlace
-                    .html(createErrorMessage('This file is larger than 2MB. Sorry, it cannot be uploaded.'));
+                    .html(createErrorMessage('This file is larger than 10MB. Sorry, it cannot be uploaded.'));
                 return false;
             }
 

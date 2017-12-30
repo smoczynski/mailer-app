@@ -38,12 +38,8 @@ class AttachmentController extends FOSRestController
             throw new HttpException(403,"There is no file attached.");
         }
 
-        if (2000000 < $file->getClientSize()) {
-            throw new HttpException(403,"Uploaded file is to big. Max size is 2MB");
-        }
-
-        if (false === in_array($file->guessExtension(), ['jpeg', 'gif','jpg','png'])) {
-            throw new HttpException(403,"Incorrect file format.");
+        if (10000000 < $file->getClientSize()) {
+            throw new HttpException(403,"Uploaded file is to big. Max size is 10MB");
         }
 
         $projectDir = $this->get('kernel')->getProjectDir();
