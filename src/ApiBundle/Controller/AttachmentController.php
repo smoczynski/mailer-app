@@ -6,14 +6,10 @@ use FOS\RestBundle\Controller\FOSRestController;
 use Nelmio\ApiDocBundle\Annotation\ApiDoc;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\HttpException;
 use FOS\RestBundle\Controller\Annotations as Rest;
 
 class AttachmentController extends FOSRestController
 {
-    const REL_PATH_ATTACHMENT_CACHE = '/var/attachment/cache/';
-    const REL_PATH_ATTACHMENT = '/var/attachment/';
-
     /**
      * Send attachment to cache directory
      *
@@ -33,19 +29,7 @@ class AttachmentController extends FOSRestController
     public function postAttachmentCacheAction(Request $request)
     {
         $file = $request->files->get('file');
-
-        if (false === $file) {
-            throw new HttpException(403,"There is no file attached.");
-        }
-
-        if (10000000 < $file->getClientSize()) {
-            throw new HttpException(403,"Uploaded file is to big. Max size is 10MB");
-        }
-
-        $projectDir = $this->get('kernel')->getProjectDir();
-        $cacheDir = $projectDir . self::REL_PATH_ATTACHMENT_CACHE;
-        $filename = md5(uniqid());
-        $file->move($cacheDir, $filename);
+        $filename = $this->get('AppBundle\Utility\AttachmentHandler')->uploadFileToCacheDir($file);
 
         return $this->handleView($this->view(['fileCacheName' => $filename], 200));
     }
@@ -68,14 +52,8 @@ class AttachmentController extends FOSRestController
      */
     public function deleteAttachmentCacheAction(Request $request)
     {
-        $fileCacheName = $request->request->get('fileCacheName');
-        $file = $this->get('kernel')->getProjectDir() . self::REL_PATH_ATTACHMENT_CACHE . $fileCacheName;
-
-        if (false === is_file($file)) {
-            throw new HttpException(403,"File does not exist.");
-        }
-
-        unlink($file);
+        $filename = $request->request->get('fileCacheName');
+        $this->get('AppBundle\Utility\AttachmentHandler')->removeFileFromCache($filename);
 
         return $this->handleView($this->view(['message' => 'Cached file deleted.'], 200));
     }
@@ -99,13 +77,7 @@ class AttachmentController extends FOSRestController
     public function putAttachmentAction(Request $request)
     {
         $attachments = $request->request->get('attachments');
-        $projectDir = $this->get('kernel')->getProjectDir();
-        $cacheDir = $projectDir . self::REL_PATH_ATTACHMENT_CACHE;
-        $attachmentDir = $projectDir . self::REL_PATH_ATTACHMENT;
-
-        foreach ($attachments as $attachment) {
-            rename($cacheDir . $attachment['cacheName'], $attachmentDir . $attachment['cacheName']);
-        }
+        $this->get('AppBundle\Utility\AttachmentHandler')->moveFilesFromCacheToAttachmentDir($attachments);
 
         return $this->handleView($this->view(['message' => 'Files saved and removed from cache.'], 200));
     }

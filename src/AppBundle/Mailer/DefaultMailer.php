@@ -13,22 +13,22 @@ class DefaultMailer extends AbstractMailer implements MailerInterface
 {
     const PROVIDER = 'default';
     private $mailer;
-    private $projectDir;
+    private $attachmentDir;
 
     /**
      * DefaultMailer constructor.
-     * @param string $projectDir
+     * @param string $attachmentDir
      * @param Swift_Mailer $mailer
      */
-    public function __construct(string $projectDir, Swift_Mailer $mailer)
+    public function __construct(string $attachmentDir, Swift_Mailer $mailer)
     {
         $this->mailer = $mailer;
-        $this->projectDir = $projectDir;
+        $this->attachmentDir = $attachmentDir;
     }
 
     public function send(Email $email): string
     {
-        $attachmentDir = $this->projectDir . AttachmentController::REL_PATH_ATTACHMENT;
+        $attachmentDir = $this->attachmentDir;
 
         try {
             $message = (new Swift_Message())

@@ -24,5 +24,10 @@ services:
 
     AppBundle\Mailer\DefaultMailer:
         arguments:
-            - '%kernel.project_dir%'
+            - '%attachment_dir%'
+
+    AppBundle\Utility\AttachmentHandler:
+        public: true
+        arguments:
+            - '%attachment_dir%'
 

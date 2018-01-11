@@ -1,5 +1,6 @@
 Symfony 3.3 REST API for email handling
 ========================
+(This is test app with solutions that should not be implemented in production environment)
 
 App has endpoints to create email, get one email, get all emails from db. 
 There is also an option to send all pending emails usung process in background.
