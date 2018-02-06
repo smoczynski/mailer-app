@@ -1,0 +1,10 @@
+#!/bin/bash
+
+reldir=`dirname "${0}"`
+cd "${reldir}"
+cd ..
+
+bin/console doctrine:schema:drop --force --env=test
+bin/console doctrine:schema:update --force --env=test
+
+vendor/bin/codecept run
