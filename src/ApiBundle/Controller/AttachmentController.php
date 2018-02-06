@@ -13,7 +13,7 @@ class AttachmentController extends FOSRestController
     /**
      * Send attachment to cache directory
      *
-     * @Rest\Post("attachment/cache")
+     * @Rest\Post("attachments/cache")
      * @Rest\View(statusCode=200)
      *
      * @ApiDoc(
@@ -37,7 +37,7 @@ class AttachmentController extends FOSRestController
     /**
      * Delete attachment from cache directory
      *
-     * @Rest\Delete("attachment/cache")
+     * @Rest\Delete("attachments/cache")
      * @Rest\View(statusCode=200)
      *
      * @ApiDoc(
@@ -61,7 +61,7 @@ class AttachmentController extends FOSRestController
     /**
      * Move attachment from cache to attachment directory
      *
-     * @Rest\Put("attachment")
+     * @Rest\Put("attachments")
      * @Rest\View(statusCode=200)
      *
      * @ApiDoc(
