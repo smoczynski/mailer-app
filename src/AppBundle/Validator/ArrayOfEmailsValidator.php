@@ -1,6 +1,6 @@
 <?php
 
-namespace AppBundle\Constraints;
+namespace AppBundle\Validator;
 
 use Symfony\Component\Config\Definition\Exception\Exception;
 use Symfony\Component\Validator\Constraint;
@@ -15,7 +15,7 @@ class ArrayOfEmailsValidator extends ConstraintValidator
             $this->context->buildViolation('This should be array of emails.')
                 ->addViolation();
 
-            return;
+            return false;
         }
 
         foreach ($value as $email) {
@@ -28,6 +28,8 @@ class ArrayOfEmailsValidator extends ConstraintValidator
                     ->addViolation();
             }
         }
+
+        return $this->context->getViolations()->count() === 0;
     }
 
 }

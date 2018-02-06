@@ -2,7 +2,6 @@
 
 namespace AppBundle\Mailer;
 
-use ApiBundle\Controller\AttachmentController;
 use AppBundle\Entity\Email;
 use Exception;
 use Swift_Attachment;

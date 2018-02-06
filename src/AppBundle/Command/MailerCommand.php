@@ -17,7 +17,7 @@ class MailerCommand extends ContainerAwareCommand
     {
         $this
             ->setName('mailer:send')
-            ->setDescription('Sending all unsend emails')
+            ->setDescription('Sending all unsent emails')
             ->setHelp('This command send all email with "pending" status')
             ->addOption(
                 'limit',

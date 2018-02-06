@@ -7,6 +7,8 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class AttachmentHandler
 {
+    const FILE_SIZE_LIMIT = 10000000;
+
     private $attachmentDir;
 
     /**
@@ -34,8 +36,9 @@ class AttachmentHandler
 
     /**
      * @param string $filename
+     * @return bool
      */
-    public function removeFileFromCache(string $filename): void
+    public function removeFileFromCache(string $filename): bool
     {
         $file = $this->attachmentDir . 'cache/' . $filename;
 
@@ -44,6 +47,8 @@ class AttachmentHandler
         }
 
         unlink($file);
+
+        return true;
     }
 
     /**
@@ -52,10 +57,13 @@ class AttachmentHandler
     public function moveFilesFromCacheToAttachmentDir(array $attachments): void
     {
         foreach ($attachments as $attachment) {
-            rename(
-                $this->attachmentDir . 'cache/' . $attachment['cacheName'],
-                $this->attachmentDir . $attachment['cacheName']
-            );
+            $filePath = $this->attachmentDir . 'cache/' . $attachment['cacheName'];
+
+            if (false === is_file($filePath)) {
+                throw new HttpException(403,"File does not exist.");
+            }
+
+            rename($filePath,$this->attachmentDir . $attachment['cacheName']);
         }
     }
 
@@ -64,13 +72,8 @@ class AttachmentHandler
      */
     private function validateFile(UploadedFile $file): void
     {
-        if (false === $file) {
-            throw new HttpException(403,"There is no file attached.");
-        }
-
-        if (10000000 < $file->getClientSize()) {
+        if (self::FILE_SIZE_LIMIT < $file->getClientSize()) {
             throw new HttpException(403,"Uploaded file is to big. Max size is 10MB");
         }
     }
-
 }

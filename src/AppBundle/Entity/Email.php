@@ -1,6 +1,6 @@
 <?php
-
 namespace AppBundle\Entity;
+
 use ApiBundle\Base\Model\ResourceInterface;
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
@@ -8,7 +8,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
 use JMS\Serializer\Annotation as Serializer;
 use Symfony\Component\Validator\Constraints as Assert;
 use ApiBundle\Base\RestController;
-use AppBundle\Constraints as CustomAssert;
+use AppBundle\Validator as CustomAssert;
 
 /**
  * Class Email
@@ -175,10 +175,13 @@ class Email implements ResourceInterface
 
     /**
      * @param string $title
+     * @return Email
      */
     public function setTitle($title)
     {
         $this->title = $title;
+
+        return $this;
     }
 
     /**
@@ -191,10 +194,13 @@ class Email implements ResourceInterface
 
     /**
      * @param string $sender
+     * @return Email
      */
     public function setSender($sender)
     {
         $this->sender = $sender;
+
+        return $this;
     }
 
     /**
@@ -207,10 +213,13 @@ class Email implements ResourceInterface
 
     /**
      * @param array $recipients
+     * @return Email
      */
     public function setRecipients($recipients)
     {
         $this->recipients = $recipients;
+
+        return $this;
     }
 
     /**
@@ -223,10 +232,13 @@ class Email implements ResourceInterface
 
     /**
      * @param string $content
+     * @return Email
      */
     public function setContent($content)
     {
         $this->content = $content;
+
+        return $this;
     }
 
     /**
@@ -239,10 +251,13 @@ class Email implements ResourceInterface
 
     /**
      * @param DateTime $createdAt
+     * @return Email
      */
     public function setCreatedAt($createdAt)
     {
         $this->createdAt = $createdAt;
+
+        return $this;
     }
 
     /**
@@ -255,10 +270,13 @@ class Email implements ResourceInterface
 
     /**
      * @param DateTime $sentAt
+     * @return Email
      */
     public function setSentAt($sentAt)
     {
         $this->sentAt = $sentAt;
+
+        return $this;
     }
 
     /**
@@ -271,10 +289,13 @@ class Email implements ResourceInterface
 
     /**
      * @param string $status
+     * @return Email
      */
     public function setStatus($status)
     {
         $this->status = $status;
+
+        return $this;
     }
 
     /**
@@ -287,10 +308,13 @@ class Email implements ResourceInterface
 
     /**
      * @param int $priority
+     * @return Email
      */
     public function setPriority($priority)
     {
         $this->priority = $priority;
+
+        return $this;
     }
 
     /**
@@ -303,10 +327,13 @@ class Email implements ResourceInterface
 
     /**
      * @param array $attachments
+     * @return Email
      */
     public function setAttachments($attachments)
     {
         $this->attachments = $attachments;
+
+        return $this;
     }
 
 

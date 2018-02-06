@@ -36,7 +36,6 @@ class MailerController
      */
     public function handleSendingEmails(string $provider = 'default', int $limit = 0): array
     {
-        /** @var MailerInterface $mailer */
         $mailer = $this->getMatchingMailer($provider);
         $emails = $this->em->getRepository(Email::class)->findAllPendingEmails($limit);
         $sentEmailsCount = 0;
