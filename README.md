@@ -1,4 +1,4 @@
-Symfony 3.3 REST API for email handling
+Symfony 3.3 REST API for email handling - (recruitment task, not for reuse)
 ========================
 (This is test app with solutions that should not be implemented in production environment)
 
